@@ -1,20 +1,22 @@
 # client
+print('client-side:\n')
 
-from tkinter import Tk, Label, Button, Entry
-from tkinter.ttk import Notebook, Frame
+from tkinter         import Tk, Label, Button, Entry
+from tkinter.ttk     import Notebook, Frame
 
-from Crypto.Cipher import AES
-from Crypto.Random import get_random_bytes
+from Crypto.Cipher   import AES
+from Crypto.Random   import get_random_bytes
 
-from db_handler import DB_handler
+from db_handler      import DB_handler
+from binary_io_loops import loopsend
 
-import jsonpickle
-import socket
+from jsonpickle      import encode as jsonpickle_encode
+from socket          import socket, AF_INET, SOCK_STREAM
 
 IP = "127.0.0.1"
 PORT = 12345
 
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client = socket(AF_INET, SOCK_STREAM)
 client.connect((IP, PORT))
 
 WINDOW_WIDTH = 400
@@ -65,13 +67,13 @@ def log_in():
     cipher = AES.new(key, AES.MODE_EAX, nonce=nonce)
     encrypted_password = cipher.encrypt_and_digest(password.encode())[0]
 
-    binary_data = jsonpickle.encode({
+    binary_data = jsonpickle_encode({
                  'act': 'log_in',
             'username': username,
         'enc_password': encrypted_password,
     }).encode()
 
-    client.send(binary_data)
+    loopsend(client, binary_data)
 
     res_msg = client.recv(1024).decode()
     match res_msg:
@@ -129,7 +131,7 @@ def sign_up():
     encrypted_password = cipher.encrypt_and_digest(password.encode())[0]
     nonce = cipher.nonce
 
-    binary_data = jsonpickle.encode({
+    binary_data = jsonpickle_encode({
                  'act': 'sign_up',
             'username': username,
         'enc_password': encrypted_password,
@@ -137,7 +139,7 @@ def sign_up():
                'nonce': nonce
     }).encode()
     
-    client.send(binary_data)
+    loopsend(client, binary_data)
 
     res_msg = client.recv(1024).decode()
     match res_msg:

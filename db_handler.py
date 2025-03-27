@@ -33,7 +33,9 @@ class DB_handler:
     @classmethod
     def get_decryption_data(cls, username: str) -> tuple[bytes] | None:
         '''
-        returns tuple(AES_key, nonce)
+        returns tuple(AES_key: bytes, nonce: bytes)
+
+        returns None if user wasn't found
         '''
         conn = pyodbc.connect(cls.dsn)
         cursor = conn.cursor()
@@ -79,7 +81,7 @@ class DB_handler:
     @classmethod
     def get_password(cls, username: str) -> bytes:
         '''
-        use for debuggin
+        use for debugging
         '''
         conn = pyodbc.connect(cls.dsn)
         cursor = conn.cursor()

@@ -1,56 +1,63 @@
 # server
+print('server-side:\n')
 
-from db_handler import DB_handler
+from db_handler      import DB_handler
+from binary_io_loops import looprecv
 
-import jsonpickle
-import socket
+from jsonpickle      import decode as jsonpickle_decode
+from socket          import socket, AF_INET, SOCK_STREAM
 
 IP = "127.0.0.1"
 PORT = 12345
 
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server = socket(AF_INET, SOCK_STREAM)
 server.bind((IP, PORT))
 server.listen(1)
 
 conn, addr = server.accept()
 
 while True:
-    try:
-        binary_data = conn.recv(1024)
-        data = jsonpickle.decode(binary_data)
+  try:
+    binary_data: bytes                  = looprecv(conn)
+    data       : dict[str, str | bytes] = jsonpickle_decode(binary_data)
 
-        match data['act']:
-            case 'log_in':
-                username = data['username']
-                password = data['enc_password']
-
-                if DB_handler.find_user(username, password):
-                    conn.send(b'ok')
-                else:
-                    conn.send(b'wrong_password')
-
-            case 'sign_up':
-                username = data['username']
-
-                if username in DB_handler.usernames_iter():
-                    conn.send(b'name_error')
-                    continue
-
-                password = data['enc_password']
-                aes_key  = data['aes_key']
-                nonce    = data['nonce']
-
-                DB_handler.add_user(username, password, aes_key, nonce)
+    act: str = data['act']
+    match act:
+    
+        case 'log_in':
+            username    : str   = data['username']
+            enc_password: bytes = data['enc_password']
+    
+            if DB_handler.find_user(username, enc_password):
                 conn.send(b'ok')
-
-            case _:
-                conn.close()
-                server.close()
-                raise 'server.py: match act default case'
-
-    except:
-        print(' - client forcefully closed connection - ')
-        break
+            else:
+                conn.send(b'wrong_password')
+    
+    
+        case 'sign_up':
+            username: str = data['username']
+    
+            if username in DB_handler.usernames_iter():
+                conn.send(b'name_error')
+                continue
+    
+            enc_password: bytes = data['enc_password']
+            aes_key     : bytes = data['aes_key']
+            nonce       : bytes = data['nonce']
+    
+            DB_handler.add_user(username, enc_password, aes_key, nonce)
+            conn.send(b'ok')
+    
+    
+        case _:
+            conn.close()
+            server.close()
+            print(f'{act=}')
+            raise 'server.py: match act default case'
+  
+  except:
+    print(' - client forcefully closed connection - ')
+    break
 
 print('\n\n')
 print('all connections were closed')
