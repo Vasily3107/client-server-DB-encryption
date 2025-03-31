@@ -30,6 +30,7 @@ while True:
     
             if DB_handler.find_user(username, enc_password):
                 conn.send(b'ok')
+                DB_handler._update_user_last_online(username)
             else:
                 conn.send(b'wrong_password')
     
@@ -47,6 +48,7 @@ while True:
     
             DB_handler.add_user(username, enc_password, aes_key, nonce)
             conn.send(b'ok')
+            DB_handler._update_user_last_online(username)
     
     
         case _:

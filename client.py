@@ -38,7 +38,7 @@ log_in_username_entry = Entry(log_in_frame)
 log_in_username_entry.grid(row=0, column=1)
 
 Label(log_in_frame, text='Password:').grid(row=1, column=0)
-log_in_password_entry = Entry(log_in_frame)
+log_in_password_entry = Entry(log_in_frame, show='*')
 log_in_password_entry.grid(row=1, column=1)
 
 def log_in():
@@ -98,15 +98,19 @@ Button(log_in_frame, text='Log in', command=log_in).grid(row=2, column=0, column
 sign_up_frame = Frame(tab_switch)
 
 sign_up_info_label = Label(sign_up_frame, text='', wraplength=WINDOW_WIDTH)
-sign_up_info_label.grid(row=3, column=0, columnspan=2)
+sign_up_info_label.grid(row=4, column=0, columnspan=2)
 
 Label(sign_up_frame, text='Username:').grid(row=0, column=0)
 sign_up_username_entry = Entry(sign_up_frame)
 sign_up_username_entry.grid(row=0, column=1)
 
 Label(sign_up_frame, text='Password:').grid(row=1, column=0)
-sign_up_password_entry = Entry(sign_up_frame)
+sign_up_password_entry = Entry(sign_up_frame, show='*')
 sign_up_password_entry.grid(row=1, column=1)
+
+Label(sign_up_frame, text='Confirm\nPassword:').grid(row=2, column=0)
+sign_up_conf_password_entry = Entry(sign_up_frame, show='*')
+sign_up_conf_password_entry.grid(row=2, column=1)
 
 def sign_up():
     def clear_error():
@@ -118,12 +122,16 @@ def sign_up():
 
     username = sign_up_username_entry.get()
     password = sign_up_password_entry.get()
+    conf_password = sign_up_conf_password_entry.get()
 
     if username == '':
         show_error("Username can't be empty")
         return
     if password == '':
         show_error("Password can't be empty")
+        return
+    if password != conf_password:
+        show_error("Entered passwords do NOT match")
         return
 
     rand_key = get_random_bytes(16)
@@ -156,7 +164,7 @@ def sign_up():
             print(f'{res_msg=}')
             raise 'server respose message matched default case'
 
-Button(sign_up_frame, text='Sign up', command=sign_up).grid(row=2, column=0, columnspan=2)
+Button(sign_up_frame, text='Sign up', command=sign_up).grid(row=3, column=0, columnspan=2)
 
 
 

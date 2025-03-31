@@ -5,7 +5,8 @@ USE test_db;
 CREATE TABLE users (
 --  column:             type:                    constraints:
     username            VARCHAR(256)             PRIMARY KEY,
-    [password]          VARBINARY(256)           NOT NULL
+    [password]          VARBINARY(256)           NOT NULL,
+	last_online         DATETIME                 NOT NULL
 );
 
 

@@ -79,10 +79,19 @@ class DB_handler:
 
 
     @classmethod
-    def get_password(cls, username: str) -> bytes:
-        '''
-        use for debugging
-        '''
+    def _update_user_last_online(cls, username: str) -> None:
+        conn = pyodbc.connect(cls.dsn)
+        cursor = conn.cursor()
+
+        cursor.execute('UPDATE users SET last_online = GETDATE() WHERE username = ?', (username,))
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+
+
+    @classmethod
+    def _get_password(cls, username: str) -> bytes:
         conn = pyodbc.connect(cls.dsn)
         cursor = conn.cursor()
 
